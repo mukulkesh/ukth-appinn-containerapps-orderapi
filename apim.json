@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.11.1.770",
+      "templateHash": "12474257455186780501"
+    }
+  },
+  "parameters": {
+    "apiManagementName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "variables": {
+    "selfHostedGatewayName": "gw-01"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2021-08-01",
+      "name": "[parameters('apiManagementName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Developer",
+        "capacity": 1
+      },
+      "properties": {
+        "publisherName": "Contoso",
+        "publisherEmail": "john.doe@nomail.com"
+      }
+    },
+    {
+      "type": "Microsoft.ApiManagement/service/gateways",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', parameters('apiManagementName'), variables('selfHostedGatewayName'))]",
+      "properties": {
+        "description": "Self-hosted API Gateway on Azure Container Apps",
+        "locationData": {
+          "name": "Azure Container Apps",
+          "countryOrRegion": "Cloud"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service', parameters('apiManagementName'))]"
+      ]
+    }
+  ]
+}
